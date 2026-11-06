@@ -12,15 +12,19 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'password']
-        read_only_fields = ['id']
+        fields = ["id", "username", "email", "password"]
+        read_only_fields = ["id"]
 
     def validate(self, attrs):
-        user = User(username=attrs.get('username', ''), email=attrs.get('email', ''))
+        user = User(
+            username=attrs.get("username", ""), email=attrs.get("email", "")
+        )
         try:
-            password_validation.validate_password(attrs['password'], user)
+            password_validation.validate_password(attrs["password"], user)
         except DjangoValidationError as exc:
-            raise serializers.ValidationError({'password': list(exc.messages)}) from exc
+            raise serializers.ValidationError(
+                {"password": list(exc.messages)}
+            ) from exc
         return attrs
 
     def create(self, validated_data):
@@ -30,25 +34,28 @@ class RegistrationSerializer(serializers.ModelSerializer):
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'balance']
+        fields = ["id", "username", "email", "balance"]
         read_only_fields = fields
 
 
 class TopUpSerializer(serializers.Serializer):
-    amount = serializers.DecimalField(max_digits=12, decimal_places=2, min_value=Decimal('0.01'))
+    amount = serializers.DecimalField(
+        max_digits=12, decimal_places=2, min_value=Decimal("0.01")
+    )
 
 
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
-        fields = ['id', 'name', 'description', 'price', 'stock', 'is_active']
+        fields = ["id", "name", "description", "price", "stock", "is_active"]
 
 
 class CartItemSerializer(serializers.ModelSerializer):
     product = ProductSerializer(read_only=True)
+
     class Meta:
         model = CartItem
-        fields = ['id', 'product', 'quantity']
+        fields = ["id", "product", "quantity"]
         read_only_fields = fields
 
 
@@ -64,12 +71,13 @@ class ChangeCartItemSerializer(serializers.Serializer):
 class OrderItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrderItem
-        fields = ['product', 'product_name', 'unit_price', 'quantity']
+        fields = ["product", "product_name", "unit_price", "quantity"]
 
 
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True, read_only=True)
+
     class Meta:
         model = Order
-        fields = ['id', 'total', 'created_at', 'items']
+        fields = ["id", "total", "created_at", "items"]
         read_only_fields = fields
